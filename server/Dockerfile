@@ -54,9 +54,12 @@ RUN curl -sfL https://github.com/rancherio/cattle/releases/download/${CATTLE_CAT
 
 RUN cd / && for i in $(ls /s6-statics/*static.tar.gz);do tar -C /usr -zxvf $i;done && rm -rf /s6-statics/*static.tar.gz && \
     mkdir -p $CATTLE_HOME && \
-    mkdir -p /var/lib/cattle/api-ui && \
-    curl -sL https:${DEFAULT_CATTLE_API_UI_INDEX}.tar.gz | tar xvzf - -C /var/lib/cattle --strip-components=1 && \
-    curl -sL https:${CATTLE_API_UI_URL}.tar.gz | tar xvzf - -C /var/lib/cattle/api-ui --strip-components=1 && \
+    mkdir -p /var/lib/cattle/api-ui 
+
+COPY cache/2.0.11.tar.gz /tmp/2.0.11.tar.gz
+RUN tar xvzf /tmp/2.0.11.tar.gz -C /var/lib/cattle --strip-components=1 && rm -rf /tmp/2.0.11.tar.gz
+
+RUN curl -sL https:${CATTLE_API_UI_URL}.tar.gz | tar xvzf - -C /var/lib/cattle/api-ui --strip-components=1 && \
     jar xvf /usr/share/cattle/lib/cattle-resources-${CATTLE_CATTLE_VERSION}.jar cattle-global.properties && \
     bash -x /usr/share/cattle/install_cattle_binaries && \
     rm cattle-global.properties && \
